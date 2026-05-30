@@ -1,6 +1,6 @@
 # Libra AI
 
-Libra is a mobile-first, AI-powered personal literary critic designed to help readers instantly decide whether a book matches their taste.
+Libra is a mobile-first, AI-powered personal literary critic designed to help readers instantly decide whether a book matches their taste. Initially built for the Cursor x Toronto Tech Week Hackathon, then extended as a long-term project.
 
 ## Stack
 
