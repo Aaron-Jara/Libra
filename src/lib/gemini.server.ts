@@ -1,5 +1,7 @@
 "use server";
 
+import { fetchGeminiWithRetry } from "@/lib/gemini-fetch.server";
+
 export type GeminiBookIdentification = {
   title: string;
   author: string;
@@ -85,17 +87,13 @@ export async function identifyBookFromImage({
   if (!imageBase64?.trim()) return { ok: false, error: "Missing image data" };
   if (!mimeType?.trim()) return { ok: false, error: "Missing image MIME type" };
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12_000);
-
   try {
-    const res = await fetch(GEMINI_API_URL, {
+    const fetched = await fetchGeminiWithRetry(GEMINI_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-goog-api-key": apiKey,
       },
-      signal: controller.signal,
       body: JSON.stringify({
         contents: [
           {
@@ -117,6 +115,12 @@ export async function identifyBookFromImage({
         },
       }),
     });
+
+    if (!fetched.ok) {
+      return { ok: false, error: fetched.error };
+    }
+
+    const res = fetched.response;
 
     if (!res.ok) {
       const bodyText = await res.text().catch(() => "");
@@ -147,10 +151,7 @@ export async function identifyBookFromImage({
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Unknown error calling Gemini";
-    const isAbort = message.toLowerCase().includes("aborted");
-    return { ok: false, error: isAbort ? "Gemini request timed out" : message };
-  } finally {
-    clearTimeout(timeout);
+    return { ok: false, error: message };
   }
 }
 

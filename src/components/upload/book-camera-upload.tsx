@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CinematicLoadingState } from "@/components/loading/cinematic-loading-state";
 import { CinematicAiResultsOverlay } from "@/components/overlays/cinematic-ai-results-overlay";
 import { Button } from "@/components/ui/button";
+import { compressImageForUpload } from "@/lib/compress-image";
 import { identifyBookWithGemini } from "@/lib/gemini";
 import { LIBRA_NAVIGATE_HOME_EVENT } from "@/lib/navigate-home";
 import { stopNarration } from "@/lib/narration";
@@ -86,7 +87,8 @@ export function BookCameraUpload({
     setCritique(null);
     setOverlayOpen(false);
 
-    const result = await identifyBookWithGemini(file);
+    const imageForUpload = await compressImageForUpload(file);
+    const result = await identifyBookWithGemini(imageForUpload);
 
     if (!result.ok) {
       setLoading(false);

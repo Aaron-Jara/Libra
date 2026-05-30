@@ -1,5 +1,6 @@
 "use server";
 
+import { fetchGeminiWithRetry } from "@/lib/gemini-fetch.server";
 import { getCriticPersonalityLabel } from "@/lib/critic-personality";
 import type { CriticType } from "@/lib/voices";
 
@@ -142,17 +143,13 @@ export async function generateCritique({
 
   const systemPrompt = formatSystemPrompt(profile, book);
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12_000);
-
   try {
-    const res = await fetch(GEMINI_API_URL, {
+    const fetched = await fetchGeminiWithRetry(GEMINI_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-goog-api-key": apiKey,
       },
-      signal: controller.signal,
       body: JSON.stringify({
         contents: [
           {
@@ -167,6 +164,12 @@ export async function generateCritique({
         },
       }),
     });
+
+    if (!fetched.ok) {
+      return { ok: false, error: fetched.error };
+    }
+
+    const res = fetched.response;
 
     if (!res.ok) {
       const bodyText = await res.text().catch(() => "");
@@ -197,10 +200,7 @@ export async function generateCritique({
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Unknown error calling Gemini";
-    const isAbort = message.toLowerCase().includes("aborted");
-    return { ok: false, error: isAbort ? "Gemini request timed out" : message };
-  } finally {
-    clearTimeout(timeout);
+    return { ok: false, error: message };
   }
 }
 

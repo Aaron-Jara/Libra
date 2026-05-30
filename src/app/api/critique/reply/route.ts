@@ -6,6 +6,9 @@ import {
 } from "@/lib/critique-reply";
 import type { CriticType } from "@/lib/voices";
 
+/** Hobby caps at 10s; Pro allows up to 60s. */
+export const maxDuration = 60;
+
 function normalizeChatHistory(value: unknown): CritiqueChatTurn[] {
   if (!Array.isArray(value)) return [];
   return value

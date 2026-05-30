@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { generateCritique } from "@/lib/critique";
 import type { ReaderProfile, IdentifiedBook } from "@/lib/critique";
 
+/** Hobby caps at 10s; Pro allows up to 60s. */
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as {

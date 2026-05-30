@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 
 import { identifyBookFromImage } from "@/lib/gemini.server";
 
+/** Hobby caps at 10s; Pro allows up to 60s. */
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
