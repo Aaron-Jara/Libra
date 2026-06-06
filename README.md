@@ -4,10 +4,10 @@ Libra is a mobile-first, AI-powered personal literary critic designed to help re
 
 ## Stack
 
-- **Next.js** (App Router) + **TypeScript**
-- **Tailwind CSS v4** + **shadcn/ui**
+- **Next.js** + **TypeScript**
+- **Tailwind CSS** + **shadcn/ui**
 - **Framer Motion** for animations
-- Dark mode only — cinematic, minimalist aesthetic
+- **Gemini 3.1 Flash Lite** for multimodal pipeline
 
 ## Getting started
 
