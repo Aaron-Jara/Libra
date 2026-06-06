@@ -7,6 +7,7 @@ import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { CritiqueReplyModal } from "@/components/overlays/critique-reply-modal";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-media-query";
 import { CRITIC_PROFILES } from "@/lib/critics";
 import type { NarrationSpeed } from "@/lib/narration-speed";
 import {
@@ -149,10 +150,18 @@ function CinematicAiResultsLayer({
   const [speedOpen, setSpeedOpen] = useState(false);
   const [narrationSpeed, setNarrationSpeed] = useState<NarrationSpeed>(1);
   const [chatMessages, setChatMessages] = useState<CritiqueChatMessage[]>([]);
+  const isMobile = useIsMobile();
   const narrationPlaying = narrationState === "playing";
   const narrationPaused = narrationState === "paused";
   const narrationLoading = narrationState === "loading";
   const narrationActive = narrationPlaying || narrationPaused;
+  const narrationButtonLabel = narrationLoading
+    ? "Preparing narration..."
+    : narrationPlaying
+      ? "Pause narration"
+      : narrationPaused
+        ? "Resume narration"
+        : "Play narration";
 
   const critiqueNarration = useMemo(
     () =>
@@ -346,28 +355,32 @@ function CinematicAiResultsLayer({
                   variant={
                     narrationActive || narrationLoading ? "secondary" : "default"
                   }
-                  className="h-12 min-w-0 flex-1 rounded-xl gap-2"
+                  className={cn(
+                    "h-12 rounded-xl gap-2",
+                    isMobile ? "shrink-0 px-3" : "min-w-0 flex-1",
+                  )}
+                  aria-label={isMobile ? narrationButtonLabel : undefined}
                   onClick={handlePlayToggle}
                 >
                   {narrationLoading ? (
                     <>
                       <Play className="size-4 fill-current animate-pulse" />
-                      Preparing narration...
+                      {!isMobile && "Preparing narration..."}
                     </>
                   ) : narrationPlaying ? (
                     <>
                       <Pause className="size-4" />
-                      Pause narration
+                      {!isMobile && "Pause narration"}
                     </>
                   ) : narrationPaused ? (
                     <>
                       <Play className="size-4 fill-current" />
-                      Resume narration
+                      {!isMobile && "Resume narration"}
                     </>
                   ) : (
                     <>
                       <Play className="size-4 fill-current" />
-                      Play narration
+                      {!isMobile && "Play narration"}
                     </>
                   )}
                 </Button>

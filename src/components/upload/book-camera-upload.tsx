@@ -258,16 +258,7 @@ export function BookCameraUpload({
       </div>
 
       <AnimatePresence>
-        {loading ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="mt-6"
-          >
-            <CinematicLoadingState />
-          </motion.div>
-        ) : null}
+        {loading ? <CinematicLoadingState /> : null}
       </AnimatePresence>
 
       {identified && overlayCopy ? (

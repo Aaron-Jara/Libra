@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/utils";
 
@@ -42,45 +44,61 @@ export type CinematicLoadingStateProps = {
  * Does not manage routing or data fetching.
  */
 export function CinematicLoadingState({ className }: CinematicLoadingStateProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const overlay = (
     <motion.div
       role="status"
       aria-live="polite"
       aria-busy="true"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
-      transition={{ duration: 0.45, ease: [0.25, 0.4, 0.25, 1] }}
-      className={cn("relative flex w-full flex-col items-center justify-center px-4 py-12", className)}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      className={cn(
+        "fixed inset-0 z-90 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm",
+        className,
+      )}
     >
       <motion.div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-[72px] sm:size-80"
-        animate={{
-          opacity: [0.35, 0.55, 0.35],
-          scale: [1, 1.06, 1],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-[42%] size-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-[48px]"
-        animate={{
-          opacity: [0.25, 0.45, 0.25],
-        }}
-        transition={{
-          duration: 2.8,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 0.4,
-        }}
-      />
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.45, ease: [0.25, 0.4, 0.25, 1] }}
+        className="relative flex w-full max-w-sm flex-col items-center justify-center sm:max-w-md"
+      >
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-[72px] sm:size-80"
+          animate={{
+            opacity: [0.35, 0.55, 0.35],
+            scale: [1, 1.06, 1],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-[42%] size-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-[48px]"
+          animate={{
+            opacity: [0.25, 0.45, 0.25],
+          }}
+          transition={{
+            duration: 2.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.4,
+          }}
+        />
 
-      <div className="surface-glass relative w-full max-w-sm rounded-2xl border border-white/8 p-8 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.55)] sm:max-w-md sm:p-10">
+        <div className="surface-glass relative w-full rounded-2xl border border-white/8 p-8 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.55)] sm:p-10">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent"
@@ -120,9 +138,14 @@ export function CinematicLoadingState({ className }: CinematicLoadingStateProps)
         </motion.p>
       </div>
 
-      <span className="sr-only">Loading, Libra is reading</span>
+        <span className="sr-only">Loading, Libra is reading</span>
+      </motion.div>
     </motion.div>
   );
+
+  if (!mounted) return null;
+
+  return createPortal(overlay, document.body);
 }
 
 function LoadingDots() {
